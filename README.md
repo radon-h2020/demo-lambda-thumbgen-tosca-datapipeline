@@ -8,7 +8,8 @@ This data pipeline (DP) implementation can be visualized with below figure. Upon
 
 In doing so, no data is stored in another instance. The images in _AWS S3 bucket1_ will not be deleted.
 
-<< abstract view >>
+![AbstractView](https://drive.google.com/open?id=1RH9yjACzeDrhmHwNyCY4zsLfu_z0n1Se)
+
 
 The *service.yml* template file will have the following tasks:
 - Create two instances in openstack environment with Centos atop.
@@ -26,7 +27,7 @@ The *service.yml* template file will have the following tasks:
 - Extract the wheel file and remove the zip file from the current location.
 - Write the python code to resize the image (given below). Save the code in `imgResize.py` file.  
 
-**imgResize.py**  
+**imgResize.py** [\[link to download\]](https://github.com/radon-h2020/lambda-thumbGen-TOSCA-datapipeline/blob/master/LambdaFunction/imgResize.py)
 ```python
 import PIL
 from PIL import Image
@@ -72,6 +73,7 @@ def lambda_handler(event, context):
 - Make a ZIP including own python file and the PIL library
     `zip -r9 code.zip .`  
 
+Download the zip [here](https://github.com/radon-h2020/lambda-thumbGen-TOSCA-datapipeline/blob/master/LambdaFunction/thumbGenLambda.zip) and ignore above steps or some unexpected errors
 
 ## 2. Upload the function
 - Create a lambda function called `imgResizer`.
@@ -104,7 +106,7 @@ This demo uses
 	- Update the access key and secret key to invoke AWS services
 	- Update the template file path mentioned in the pipeline nodes.
 
-<< file structure view >>
+![fileStr](https://drive.google.com/open?id=1NZD3Ogo3qevxUyKCPrveJvMknjAjdm-c)
 
 # Execution:
 - Setup the virtual environment
