@@ -8,7 +8,7 @@ This data pipeline (DP) implementation can be visualized with below figure. Upon
 
 In doing so, no data is stored in another instance. The images in _AWS S3 bucket1_ will not be deleted.
 
-![AbstractView](https://drive.google.com/open?id=1RH9yjACzeDrhmHwNyCY4zsLfu_z0n1Se)
+[![AbstractView](https://drive.google.com/open?id=1RH9yjACzeDrhmHwNyCY4zsLfu_z0n1Se)](https://drive.google.com/open?id=1RH9yjACzeDrhmHwNyCY4zsLfu_z0n1Se)
 
 
 The *service.yml* template file will have the following tasks:
@@ -106,7 +106,8 @@ This demo uses
 	- Update the access key and secret key to invoke AWS services
 	- Update the template file path mentioned in the pipeline nodes.
 
-![fileStr](https://drive.google.com/open?id=1NZD3Ogo3qevxUyKCPrveJvMknjAjdm-c)
+[![fileStr](https://drive.google.com/open?id=1NZD3Ogo3qevxUyKCPrveJvMknjAjdm-c)](https://drive.google.com/open?id=1NZD3Ogo3qevxUyKCPrveJvMknjAjdm-c)
+
 
 # Execution:
 - Setup the virtual environment
