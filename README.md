@@ -3,6 +3,7 @@ TOSCA Data pipeline to generate thumbnail of images in S3 bucket using Amazon la
 
 **Short Description**: Deploying pipelines on multiple Openstack instances that would read, preprocess, and store the image files.  
 
+**Long Description**: 
 This data pipeline (DP) implementation can be visualized with below figure. Upon deployment of the DP, _Pipeline1_ will get the list of images present in one AWS S3 bucket (_AWS S3 bucket1_) followed by downloading the images to _Instance-1_. The images will be sent to another instance _Instance-2_. _Pipeline2_ on _Instance-2_ will be responsible for invoking lambda function to process the received images. Further, _Pipeline3_ will be responsible for pushing the processed images to another S3 bucket (_AWS S3 bucket2_).  
 
 In doing so, no data is stored in another instance. The images in _AWS S3 bucket1_ will not be deleted.
