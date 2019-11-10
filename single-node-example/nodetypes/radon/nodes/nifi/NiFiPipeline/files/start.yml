@@ -1,0 +1,82 @@
+  ##########################################################################
+  # Copyright (c) 2019 Contributors to the RADON project
+  #
+  # Licensed under the Apache License, Version 2.0 (the "License");
+  # you may not use this file except in compliance with the License.
+  # You may obtain a copy of the License at
+  #
+  #     http://www.apache.org/licenses/LICENSE-2.0
+  #
+  # Unless required by applicable law or agreed to in writing, software
+  # distributed under the License is distributed on an "AS IS" BASIS,
+  # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  # See the License for the specific language governing permissions and
+  # limitations under the License.
+  ##########################################################################
+
+
+---
+- hosts: all
+  vars: 
+    query_rootPG_id: "resources[?name=='NiFi Flow' && starts_with(identifier, '/process-groups/')].identifier"
+  tasks:
+       
+
+    - name: Get list of available NiFi resources for fetching the id of the listS3, FetchS3Object, PutS3Object
+      uri:
+        url: http://localhost:8080/nifi-api/resources/
+        method: Get
+      register: nifi_resources
+
+
+## FOR ROOT PROCESS GROUP. start everything in the root process group
+    - name: start the ROOT PROCESS GROUP. This will start everything with in.
+      vars:        
+        rootPG_ID: "{{ nifi_resources.json  | to_json | from_json | json_query(query_rootPG_id) | first }}"
+      uri:
+        url: "http://localhost:8080/nifi-api/flow/process-groups/{{rootPG_ID.split('/')[2]}}"
+        method: PUT
+        body:
+          "id": "{{rootPG_ID.split('/')[2]}}"
+          "state": "RUNNING" 
+        status: 201
+        body_format: json      
+    - name: printing the root resources
+      debug:
+        var: nifi_resources
+
+# FOR REMOTE PROCESS GROUP. 
+    - name: check if id_remoteProcessGroups.txt is present.
+      stat: 
+          path: /tmp/id_remoteProcessGroups.txt
+      register: fileStat
+    # READ the FILE
+    - name: read the file content if this exists
+      shell: cat /tmp/id_remoteProcessGroups.txt
+      register: file_content
+      when: fileStat.stat.exists == True
+    #get the VERSION info
+    - name: Fetch information if the pipeline is RPG (remoteProcessGroups)
+      vars:
+        pipeline_id: "{{ file_content.stdout }}"
+      uri:
+        url: "http://localhost:8080/nifi-api/remote-process-groups/{{pipeline_id}}"
+        method: GET
+      register: group_info
+      when: fileStat.stat.exists == True
+    #start the pipeline
+    - name: Start the pipeline (remoteProcessGroups)
+      vars:
+        pipeline_id: "{{ file_content.stdout }}"
+      uri:
+        url: "http://localhost:8080/nifi-api/remote-process-groups/{{pipeline_id}}/run-status"              
+        method: PUT
+        body:
+          "revision": "{{ group_info.json.revision}}"
+          "state": "TRANSMITTING" 
+          "disconnectedNodeAcknowledged": true
+        status: 201
+        body_format: json
+      when: fileStat.stat.exists == True
+
+
