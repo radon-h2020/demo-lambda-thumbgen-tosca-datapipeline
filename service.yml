@@ -16,7 +16,7 @@ tosca_definitions_version: tosca_simple_yaml_1_0
   ##########################################################################
 
 node_types:
-  my.nodes.VM.OpenStack:
+  radon.nodes.VM.OpenStack:
     derived_from: tosca.nodes.Compute
     properties:
       name:
@@ -257,7 +257,7 @@ topology_template:
   
   node_templates:
     vmone:
-      type: my.nodes.VM.OpenStack
+      type: radon.nodes.VM.OpenStack
       properties:
         name: nifihost_one_utr_chinmaya
         image: d3eeb4ae-9b8c-49ed-8314-123a8a808b2b
@@ -266,7 +266,7 @@ topology_template:
         key_name: rem-VM2
 
     vmtwo:
-      type: my.nodes.VM.OpenStack
+      type: radon.nodes.VM.OpenStack
       properties:
         name: nifihost_two_utr_chinmaya
         image: d3eeb4ae-9b8c-49ed-8314-123a8a808b2b
