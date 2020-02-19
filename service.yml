@@ -183,7 +183,7 @@ relationship_types:
               source_pipeline_server_ip: { default: { get_attribute: [SOURCE, host, host, public_address] } }
               target_pipeline_server_ip: { default: { get_attribute: [TARGET, host, host, public_address] } }
             implementation:
-              primary: dp_plugin/connectPipelines.yml
+              primary: dpp/connectPipelines.yml
 
 
 
