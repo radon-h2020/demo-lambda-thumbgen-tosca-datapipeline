@@ -233,8 +233,8 @@ topology_template:
         - host: nifi_vmtwo
         - connectToPipeline: pipeline3_pushImg
       properties:
-        template_file: "/home/opera_0.5.2/EC-review_demo/V1/files/invokeLambda_PG.xml"
-        cred_file_path: "/home/opera_0.5.2/EC-review_demo/V1/files/credentials" 
+        template_file: "/home/opera_0.5.2/DP_demo/V1/files/invokeLambda_PG.xml"
+        cred_file_path: "/home/opera_0.5.2/DP_demo/V1/files/credentials" 
         object_name: "invokeLambda"       
         # template name SHOULD MATCH with the name mentioned in the template file
         template_name: "invokeLambda_PG"
@@ -246,8 +246,8 @@ topology_template:
       requirements:
         - host: nifi_vmtwo 
       properties:
-        template_file: "/home/opera_0.5.2/EC-review_demo/V1/files/pushToS3_PG.xml"
-        cred_file_path: "/home/opera_0.5.2/EC-review_demo/V1/files/credentials" 
+        template_file: "/home/opera_0.5.2/DP_demo/V1/files/pushToS3_PG.xml"
+        cred_file_path: "/home/opera_0.5.2/DP_demo/V1/files/credentials" 
         # below variable name is used only during the configuration
         object_name: "PutS3Object"       
         # template name SHOULD MATCH with the name mentioned in the template file
@@ -261,8 +261,8 @@ topology_template:
         - host: nifi_vmone
         - connectToPipeline: pipeline2_invokeLmabda
       properties:
-        template_file: /home/opera_0.5.2/EC-review_demo/V1/files/readFrmS3_PG.xml
-        cred_file_path: "/home/opera_0.5.2/EC-review_demo/V1/files/credentials"
+        template_file: /home/opera_0.5.2/DP_demo/V1/files/readFrmS3_PG.xml
+        cred_file_path: "/home/opera_0.5.2/DP_demo/V1/files/credentials"
         object_name: "ListS3"
         # template name should match with the name mentioned in the template file
         template_name: "readFrmS3_PG"
