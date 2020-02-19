@@ -89,8 +89,9 @@ Download the zip [here](https://github.com/radon-h2020/lambda-thumbGen-TOSCA-dat
 # Prerequisites
 This demo uses 
 - Openstack environment for creating instances
-- Apache Nifi v1.9.2 for pipeline base
-- xOpera release 0.1.0. [Download here](http://https://github.com/xlab-si/xopera-opera/releases/tag/0.1.0 "Download here").
+- Apache Nifi v1.11.1 for pipeline base
+- xOpera release 0.5.2 [Download here](https://github.com/radon-h2020/xopera-opera/releases/tag/0.5.2 "Download here").
+- TOSCA Simple Profile in YAML Version 1.3 [link](https://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.3/TOSCA-Simple-Profile-YAML-v1.3.html)
 
 ## Assumptions:
 - Openstack environment is ready and you are able to login and create instances through CLI.
@@ -113,7 +114,7 @@ This demo uses
 - Setup the virtual environment
 - Connect to openstack environment
 - Execute the following command
-`Opera deploy nifi service.yml`
+`Opera deploy service.yml`
 
 
 # Acknowledgement
