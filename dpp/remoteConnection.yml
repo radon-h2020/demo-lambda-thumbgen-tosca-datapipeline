@@ -1,14 +1,4 @@
 # CHECK IF THE HOST ids are different
-- name: get the server/host id of both source pipeline and target pipeline
-  copy:
-    dest: /tmp/source_target_host_ips.txt
-    content: |
-      source_pipeline_id: {{ source_pipeline_id }}
-      target_pipeline_id: {{target_pipeline_id}}
-          
-      source_pipeline_server_ip: {{source_pipeline_server_ip}}
-      target_pipeline_server_ip: {{target_pipeline_server_ip}}
-
 
 - name: Create a RPG in the SOURCE server 
   vars:  

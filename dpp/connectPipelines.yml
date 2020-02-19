@@ -15,21 +15,11 @@
       register: nifi_resources
     
     # CHECK IF THE HOST ids are different
-    - name: get the server/host id of both source pipeline and target pipeline
-      copy:
-        dest: /tmp/source_target_host_ips.txt
-        content: |
-          source_pipeline_id: {{ source_pipeline_id }}
-          target_pipeline_id: {{target_pipeline_id}}
-              
-          source_pipeline_server_ip: {{source_pipeline_server_ip}}
-          target_pipeline_server_ip: {{target_pipeline_server_ip}}
-
     - name: invoke LOCAL connection ansible script if both the server ips are same
-      include_tasks: /home/chinmaya/Desktop/opera_0.5.1/EC-review_demo/V1/dp_plugin/localConnection.yml
+      include_tasks: /home/opera_0.5.2/DP_demo/V1/dpp/localConnection.yml
       when: source_pipeline_server_ip == target_pipeline_server_ip
 
     - name: invoke REMOTE connection ansible script if both the server ips are same
-      include_tasks: /home/chinmaya/Desktop/opera_0.5.1/EC-review_demo/V1/dp_plugin/remoteConnection.yml
+      include_tasks: /home/opera_0.5.2/DP_demo/V1/dpp/remoteConnection.yml
       when: source_pipeline_server_ip != target_pipeline_server_ip
  
