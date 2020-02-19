@@ -34,7 +34,6 @@ node_types:
       key_name:
         type: string
         description: OpenStack SSH key name that should be placed on the VM
-
     attributes:
       id:
         type: string
@@ -45,18 +44,19 @@ node_types:
     interfaces:
       Standard:
         type: tosca.interfaces.node.lifecycle.Standard
-        create:
-          inputs:
-            vm_name:  { default: { get_property: [ SELF, name     ] } }
-            image:    { default: { get_property: [ SELF, image    ] } }
-            flavor:   { default: { get_property: [ SELF, flavor   ] } }
-            network:  { default: { get_property: [ SELF, network  ] } }
-            key_name: { default: { get_property: [ SELF, key_name ] } }
-          implementation: nodetypes/vm/create.yml
-        delete:
-          inputs:
-            id: { default: { get_attribute: [ SELF, id ] } }
-          implementation: nodetypes/vm/delete.yml
+        operations:
+          create:
+            inputs:
+              vm_name:  { default: { get_property: [ SELF, name     ] } }
+              image:    { default: { get_property: [ SELF, image    ] } }
+              flavor:   { default: { get_property: [ SELF, flavor   ] } }
+              network:  { default: { get_property: [ SELF, network  ] } }
+              key_name: { default: { get_property: [ SELF, key_name ] } }
+            implementation: nodetypes/vm/create.yml
+          delete:
+            inputs:
+              id: { default: { get_attribute: [ SELF, id ] } }
+            implementation: nodetypes/vm/delete.yml
 
   radon.nodes.abstract.DataPipeline:
     derived_from: tosca.nodes.Root
@@ -66,37 +66,39 @@ node_types:
     properties:
       component_version:
         description: The version of Apache Nifi
+        type: string
         required: true
       port:
         description: The port exposed by Apache Nifi
         required: true
+        type: string
         default: 8080
     capabilities:
       host:
         type: tosca.capabilities.Container
-        # valid_source_types: [ radon.nodes.nifi.NifiPipeline ]
+        # valid_source_types: [ radon.nodes.nifi.nifipipeline ]
     interfaces:
       Standard:
         type: tosca.interfaces.node.lifecycle.Standard
-        create:
-          inputs: 
-            tarball_version: { default: { get_property: [ SELF, component_version ] } }
-          implementation: nodetypes/radon/nodes/nifi/NiFiPlatform/files/create.yml
-        start:
-          implementation: nodetypes/radon/nodes/nifi/NiFiPlatform/files/start.yml
-        stop:
-          implementation: nodetypes/radon/nodes/nifi/NiFiPlatform/files/stop.yml
-        delete:
-          inputs:
-            tarball_version: { default: { get_property: [ SELF, component_version ] } }
-          implementation: nodetypes/radon/nodes/nifi/NiFiPlatform/files/delete.yml
-        configure:
-          inputs:
-            tarball_version: { default: { get_property: [ SELF, component_version ] } }
-          implementation: nodetypes/radon/nodes/nifi/NiFiPlatform/files/configure.yml
- 
+        operations:
+          create:
+            inputs: 
+              tarball_version: { default: { get_property: [ SELF, component_version ] } }
+            implementation: nodetypes/radon/nodes/nifi/nifiplatform/files/create.yml
+          start:
+            implementation: nodetypes/radon/nodes/nifi/nifiplatform/files/start.yml
+          stop:
+            implementation: nodetypes/radon/nodes/nifi/nifiplatform/files/stop.yml
+          delete:
+            inputs:
+              tarball_version: { default: { get_property: [ SELF, component_version ] } }
+            implementation: nodetypes/radon/nodes/nifi/nifiplatform/files/delete.yml
+          configure:
+            inputs:
+              tarball_version: { default: { get_property: [ SELF, component_version ] } }
+            implementation: nodetypes/radon/nodes/nifi/nifiplatform/files/configure.yml
 
-  radon.nodes.nifi.NiFiPipeline:
+  radon.nodes.nifi.nifipipeline:
     derived_from: radon.nodes.abstract.DataPipeline
     properties:
       template_file:
@@ -111,17 +113,10 @@ node_types:
       object_name:
         type: string
         description: object name in the process group
-    artifacts:
-      pipeline_template:
-        description: The pipeline template XML file
-        type: tosca.artifacts.File
     attributes:
       id:
         type: string
-        description: Unique ID of the pipeline
-      ids_file:
-        type: string
-        description: This is a file containing a list of ids in JSON format. This file will be used to start each processor
+        description: Unique ID of the pipeline      
       pipeline_type:
         type: string
         description: type of the pipeline. e.g. processor, process-groups, inputPorts, RPG etc
@@ -130,147 +125,86 @@ node_types:
           capability: tosca.capabilities.Container
           node: radon.nodes.nifi.Nifi
           relationship: tosca.relationships.HostedOn
-      - connect:
+      - connectToPipeline:
           capability: tosca.capabilities.Endpoint
-          node: radon.nodes.nifi.NifiPipeline
-          relationship: tosca.relationships.ConnectsTo
-          # occurances: [0, 1]
+          node: radon.nodes.nifi.nifipipeline
+          relationship: radon.relationships.datapipelines.ConnectNiFi
+          occurrences: [0, 1]
     capabilities:
-      connect:
+      connectToPipeline:
         type: tosca.capabilities.Endpoint
         description: Capability to receive data from other pipeline nodes
-        # valid_source_type: [ radon.nodes.nifi.NifiPipeline ]
-        # occurances: [0, UNBOUNDED]
+        valid_source_types: [ radon.nodes.nifi.nifipipeline ]
+        occurrences: [0, UNBOUNDED]
     interfaces:
       Standard:
         type: tosca.interfaces.node.lifecycle.Standard
-        create:
-          inputs: 
-            template_file:  { default: { get_property: [ SELF, template_file ] } }  
-            template_name:  { default: { get_property: [ SELF, template_name ] } } 
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipeline/files/create.yml
-        start:
-          inputs: 
-            # pipeline_id: { default: { get_attribute: [ SELF, id ] } }
-            pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } }
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipeline/files/start.yml
-        stop:
-          inputs: 
-            pipeline_id: { default: { get_attribute: [ SELF, id ] } }
-            pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } }
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipeline/files/stop.yml
-        configure: 
-          inputs: 
-            pipeline_id: { default: { get_attribute: [ SELF, id ] } }
-            pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } } 
-            cred_file_path: { default: { get_property: [ SELF, cred_file_path ] } }
-            object_name: { default: { get_property: [ SELF, object_name ] } }   
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipeline/files/configure.yml
-        delete:
-          inputs: 
-            pipeline_id: { default: { get_attribute: [ SELF, id ] } }
-            pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } }
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipeline/files/delete.yml
+        operations:
+          create:
+            inputs: 
+              template_file:  { default: { get_property: [ SELF, template_file ] } }  
+              template_name:  { default: { get_property: [ SELF, template_name ] } } 
+            implementation: nodetypes/radon/nodes/nifi/nifipipeline/files/create.yml
+          start:
+            inputs: 
+              pipeline_id: { default: { get_attribute: [ SELF, id ] } }
+              pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } }
+            implementation: nodetypes/radon/nodes/nifi/nifipipeline/files/start.yml
+          stop:
+            inputs: 
+              pipeline_id: { default: { get_attribute: [ SELF, id ] } }
+              pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } }
+            implementation: nodetypes/radon/nodes/nifi/nifipipeline/files/stop.yml
+          configure: 
+            inputs: 
+              # pipeline_id: { default: { get_attribute: [ SELF, id ] } }
+              # pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } } 
+              cred_file_path: { default: { get_property: [ SELF, cred_file_path ] } }
+              object_name: { default: { get_property: [ SELF, object_name ] } }   
+            implementation: nodetypes/radon/nodes/nifi/nifipipeline/files/configure.yml
+          delete:
+            inputs: 
+              pipeline_id: { default: { get_attribute: [ SELF, id ] } }
+              pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } }
+            implementation: nodetypes/radon/nodes/nifi/nifipipeline/files/delete.yml
 
-  radon.nodes.nifi.NiFiPipeline.remotePipeline:
-    derived_from: radon.nodes.nifi.NiFiPipeline
-    properties:
-      remote_host:
-        type: string
-        description: IP of remote instance where the data will be forwarded.
-        required: true
-      remote_port:
-        type: string
-        description: port number of remote instance where the data will be forwarded.
-        default: 8080
-        required: true
-    interfaces:
-      Standard:
-        type: tosca.interfaces.node.lifecycle.Standard
-        create:
-          inputs: 
-            template_file:  { default: { get_property: [ SELF, template_file ] } }  
-            template_name:  { default: { get_property: [ SELF, template_name ] } } 
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipeline/files/create.yml
-        start:
-          inputs: 
-            # pipeline_id: { default: { get_attribute: [ SELF, id ] } }
-            pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } }
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipeline/files/start.yml
-        stop:
-          inputs: 
-            pipeline_id: { default: { get_attribute: [ SELF, id ] } }
-            pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } }
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipeline/files/stop.yml
-        configure: 
-          inputs: 
-            pipeline_id: { default: { get_attribute: [ SELF, id ] } }
-            pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } } 
-            cred_file_path: { default: { get_property: [ SELF, cred_file_path ] } }
-            object_name: { default: { get_property: [ SELF, object_name ] } }  
-            remote_host: { default: { get_property: [ SELF, remote_host ] } }  
-            remote_port: { default: { get_property: [ SELF, remote_port ] } }   
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipeline/files/configure_RPG.yml
-        delete:
-          inputs: 
-            pipeline_id: { default: { get_attribute: [ SELF, id ] } }
-            pipeline_type: { default: { get_attribute: [ SELF, pipeline_type ] } }
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipeline/files/delete.yml
+relationship_types:
+   radon.relationships.datapipelines.ConnectNiFi:
+     derived_from: tosca.relationships.ConnectsTo
+     description: Connecting two nifi data pipelines for forwarding data. The pipelines should be on same server.
+     # valid_target_types: [ radon.nodes.nifi.nifipipeline ]     
+     interfaces:
+       Configure:                 
+         operations:
+          post_configure_source:
+            inputs:
+              source_pipeline_id: { default: { get_attribute: [SOURCE, id] } }
+              target_pipeline_id: { default: { get_attribute: [TARGET, id] } }
+              source_pipeline_server_ip: { default: { get_attribute: [SOURCE, host, host, public_address] } }
+              target_pipeline_server_ip: { default: { get_attribute: [TARGET, host, host, public_address] } }
+            implementation:
+              primary: dp_plugin/connectPipelines.yml
 
-  radon.nodes.nifi.NiFiPipelineConnection:
-    derived_from: radon.nodes.abstract.DataPipeline
-    properties:
-      input_port_name:
-        type: string
-        description: input_port_name (present in the DESTINATION pipeline)
-      output_port_name: 
-        type: string
-        description: output_port_name
-      source_group_id: 
-        type: string
-        description:  source_group_id
-      destination_group_id: 
-        type: string
-        description: destination_group_id
-    requirements:
-      - host:
-          capability: tosca.capabilities.Container
-          node: radon.nodes.nifi.Nifi
-          relationship: tosca.relationships.HostedOn
-      - connect:
-          capability: tosca.capabilities.Endpoint
-          node: radon.nodes.nifi.NifiPipeline
-          relationship: tosca.relationships.ConnectsTo
-    interfaces:
-      Standard:
-        type: tosca.interfaces.node.lifecycle.Standard
-        create:
-          inputs: 
-            input_port_name: { default: { get_property: [ SELF, input_port_name ] } }  
-            output_port_name: { default: { get_property: [ SELF, output_port_name ] } }  
-            source_group_id: { default: { get_property: [ SELF, source_group_id ] } }  
-            destination_group_id: { default: { get_property: [ SELF, destination_group_id ] } } 
-          implementation: nodetypes/radon/nodes/nifi/NiFiPipelineConnection/files/create.yml
 
 
 topology_template:
-  
+
   node_templates:
     vmone:
       type: radon.nodes.VM.OpenStack
       properties:
-        name: nifihost_one_utr_chinmaya
-        image: d3eeb4ae-9b8c-49ed-8314-123a8a808b2b
-        flavor: 6b254b9e-db1c-40de-994c-07d69dd732a6
+        name: vmone_centos1
+        image: 13a94b11-98ee-43a4-ad29-00ae97e8f790 
+        flavor: m2.xsmall
         network: provider_64_net
         key_name: rem-VM2
 
     vmtwo:
       type: radon.nodes.VM.OpenStack
       properties:
-        name: nifihost_two_utr_chinmaya
-        image: d3eeb4ae-9b8c-49ed-8314-123a8a808b2b
-        flavor: 6b254b9e-db1c-40de-994c-07d69dd732a6
+        name: vmtwo_centos2
+        image: 13a94b11-98ee-43a4-ad29-00ae97e8f790 
+        flavor: m2.xsmall
         network: provider_64_net
         key_name: rem-VM2
       requirements:
@@ -282,7 +216,7 @@ topology_template:
       requirements:
         - host: vmone
       properties:
-        component_version: "1.9.2"
+        component_version: "1.11.1"
 
     # INSTALL and CONFIGURE nifi on this instance
     nifi_vmtwo:
@@ -290,73 +224,45 @@ topology_template:
       requirements:
         - host: vmtwo
       properties:
-        component_version: "1.9.2"
-
-    
-# # RECEIVER PIPELINEs: DEST VM
-    # this will PUSH the thumbnail image to another bucket
-    pipeline3_pushImg:
-      type: radon.nodes.nifi.NiFiPipeline
+        component_version: "1.11.1"
+       
+    # This will RECEIVE the original image and the INVOKE the Lambda function (and receive the result from lambda)
+    pipeline2_invokeLmabda:
+      type: radon.nodes.nifi.nifipipeline
       requirements:
         - host: nifi_vmtwo
+        - connectToPipeline: pipeline3_pushImg
       properties:
-        template_file: /home/chinmaya/Desktop/xopera.new/ChinmayaExp/nifi_pelle_ext_v5_final/files/pushToS3_PG.xml
-        cred_file_path: "/home/chinmaya/Desktop/xopera.new/ChinmayaExp/nifi_pelle_ext_v5_final/files/credentials" 
+        template_file: "/home/opera_0.5.2/EC-review_demo/V1/files/invokeLambda_PG.xml"
+        cred_file_path: "/home/opera_0.5.2/EC-review_demo/V1/files/credentials" 
+        object_name: "invokeLambda"       
+        # template name SHOULD MATCH with the name mentioned in the template file
+        template_name: "invokeLambda_PG"
+
+
+    # this will PUSH the thumbnail image to another bucket
+    pipeline3_pushImg:
+      type: radon.nodes.nifi.nifipipeline
+      requirements:
+        - host: nifi_vmtwo 
+      properties:
+        template_file: "/home/opera_0.5.2/EC-review_demo/V1/files/pushToS3_PG.xml"
+        cred_file_path: "/home/opera_0.5.2/EC-review_demo/V1/files/credentials" 
         # below variable name is used only during the configuration
         object_name: "PutS3Object"       
         # template name SHOULD MATCH with the name mentioned in the template file
         template_name: "pushToS3_PG"
-      artifacts:
-        pipeline_template: 
-          file: /home/chinmaya/Desktop/xopera.new/ChinmayaExp/nifi_pelle_ext_v5_final/files/pushToS3_PG.xml
-    # This will RECEIVE the original image and the INVOKE the Lambda function (and receive the result from lambda)
-    pipeline2_invokeLmabda:
-      type: radon.nodes.nifi.NiFiPipeline
-      requirements:
-        - host: nifi_vmtwo
-      properties:
-        template_file: /home/chinmaya/Desktop/xopera.new/ChinmayaExp/nifi_pelle_ext_v5_final/files/invokeLambda_PG.xml
-        cred_file_path: "/home/chinmaya/Desktop/xopera.new/ChinmayaExp/nifi_pelle_ext_v5_final/files/credentials" 
-        object_name: "invokeLambda"               
-        template_name: "invokeLambda_PG"
-      artifacts:
-        pipeline_template: 
-          file: /home/chinmaya/Desktop/xopera.new/ChinmayaExp/nifi_pelle_ext_v5_final/files/invokeLambda_PG.xml
-    
-    # this one will ESTABLISH the CONNECTION between above two pipelines
-    pipelineConnection:
-      type: radon.nodes.nifi.NiFiPipelineConnection
-      requirements:
-        - host: nifi_vmtwo
-      properties:
-        output_port_name: "sendProcessedImage"
-        source_group_id: "none" 
-        input_port_name: "getDataToPush"         
-        destination_group_id: "none"
 
 
-
-
-# SENDER PIPELINE: SRC VM
     # This will READ the image files from S3 bucket
     pipeline1_getS3Img:
-      type: radon.nodes.nifi.NiFiPipeline.remotePipeline
+      type: radon.nodes.nifi.nifipipeline
       requirements:
         - host: nifi_vmone
+        - connectToPipeline: pipeline2_invokeLmabda
       properties:
-        template_file: /home/chinmaya/Desktop/xopera.new/ChinmayaExp/nifi_pelle_ext_v5_final/files/read_from_s3_RPG.xml
-        cred_file_path: "/home/chinmaya/Desktop/xopera.new/ChinmayaExp/nifi_pelle_ext_v5_final/files/credentials"
+        template_file: /home/opera_0.5.2/EC-review_demo/V1/files/readFrmS3_PG.xml
+        cred_file_path: "/home/opera_0.5.2/EC-review_demo/V1/files/credentials"
         object_name: "ListS3"
         # template name should match with the name mentioned in the template file
-        template_name: "read_from_s3_RPG"
-        # For now Xopera does not allow to get the IP of others instance because no relation can be establish between two instances.        
-        remote_host: "nifihost_two_utr_chinmaya" 
-        remote_port: "8080"
-      artifacts:
-        pipeline_template: 
-          file: /home/chinmaya/Desktop/xopera.new/ChinmayaExp/nifi_pelle_ext_v5_final/files/read_from_s3_RPG.xml
-    
-
-  
-
-
+        template_name: "readFrmS3_PG"
