@@ -8,11 +8,11 @@
         url: http://localhost:8080/nifi-api/process-groups/{{rootPG_ID.split('/')[2]}}/remote-process-groups
         method: POST
         body:
-          "revision": 
+          "revision":
              "version": 0
-          "component":            
+          "component":
               "targetUri": "http://{{target_pipeline_server_ip}}:8080/nifi/"
-              "transportProtocol": "HTTP"            
+              "transportProtocol": "HTTP"
         status_code: 201
         body_format: json
   register: newRPG
