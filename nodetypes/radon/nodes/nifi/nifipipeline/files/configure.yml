@@ -15,14 +15,6 @@
   ##########################################################################
 
 
-#####
-# this assume that the nifi components are already created and deployed on the VM.
-# Now access those component (specially ListS3, FetchS3Object, and PutLambda)
-# provide the credential file to those nifi components
-####
-#
-# INPUT : path of the credential file in the local machine. This file will eb uploaded to the remote machine to /tmp/ directory
-
 ---
 - hosts: all
   vars: 
@@ -64,13 +56,13 @@
             "id": "{{lists3_ID.split('/')[2]}}"
             "config": 
               "properties": { "Credentials File": "{{dest_cred_file_path}}"}                       
-        status: 201
+        status_code: 200
         body_format: json
       when: cred_file_path != "none" and object_name == "ListS3"
 
 
 ## FOR PutLambda
-    - name: set the ecredential file path for PutLambda
+    - name: set the credential file path for PutLambda
       vars: 
         # get the PutLambda. Example: "/processors/22549d16-e4c8-3f23-b949-af4aca95a3aa"   
         # we need to extract only the ID, which is at the end         
@@ -84,7 +76,7 @@
             "id": "{{PutLambda_ID.split('/')[2]}}"
             "config": 
               "properties": { "Credentials File": "{{dest_cred_file_path}}"}                       
-        status: 201
+        status_code: 200
         body_format: json
       when: cred_file_path != "none" and object_name == "invokeLambda"
 
@@ -103,7 +95,7 @@
             "id": "{{FetchS3ObjectID.split('/')[2]}}"
             "config": 
               "properties": { "Credentials File": "{{dest_cred_file_path}}"}                       
-        status: 201
+        status_code: 200
         body_format: json
       when: cred_file_path != "none" and object_name == "ListS3"
 
@@ -117,7 +109,7 @@
       register: revisionInfo
       when: cred_file_path != "none" and object_name == "PutS3Object"
 
-    - name: set the ecredential file path for PutS3Object
+    - name: set the credential file path for PutS3Object
       vars:      
         PutS3ObjectID: "{{ nifi_resources.json  | to_json | from_json | json_query(query_putS3) | first }}"
       uri:
@@ -129,7 +121,7 @@
             "id": "{{PutS3ObjectID.split('/')[2]}}"
             "config": 
               "properties": { "Credentials File": "{{dest_cred_file_path}}"}                       
-        status: 201
+        # status_code: 201
         body_format: json
       when: cred_file_path != "none" and object_name == "PutS3Object"
     
