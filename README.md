@@ -89,6 +89,7 @@ Download the zip [here](https://github.com/radon-h2020/lambda-thumbGen-TOSCA-dat
 # Prerequisites
 This demo uses 
 - Openstack environment for creating instances
+   - we may refer the steps [here](https://github.com/radon-h2020/xopera-opera) to setup OpenStack client.
 - Apache Nifi v1.11.1 for pipeline base
 - xOpera release 0.5.2 [Download here](https://github.com/radon-h2020/xopera-opera/releases/tag/0.5.2 "Download here").
 - TOSCA Simple Profile in YAML Version 1.3 [link](https://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.3/TOSCA-Simple-Profile-YAML-v1.3.html)
@@ -107,7 +108,7 @@ This demo uses
 	- Update the access key and secret key to invoke AWS services
 	- Update the template file path mentioned in the pipeline nodes.
 
-![fileStr](https://drive.google.com/uc?export=view&id=1NZD3Ogo3qevxUyKCPrveJvMknjAjdm-c)
+
 
 
 # Execution:
